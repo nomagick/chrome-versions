@@ -1,12 +1,16 @@
 name: Check For Chrome Updates
 
 on:
+  workflow_dispatch:
   schedule:
     # Run at 10am daily
     - cron: '0 10 * * *'
 
 concurrency:
   group: ${{ github.ref }}
+
+permissions:
+  contents: write
 
 jobs:
   cron:
@@ -15,9 +19,6 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          token: ${{ secrets.PAT }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

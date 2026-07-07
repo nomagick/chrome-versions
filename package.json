@@ -7,10 +7,12 @@
     "env": "env $(cat .env | xargs)",
     "mac": "npm run build && env $(cat .env | xargs) SYNC_OS_KEYS=mac,mac_arm64 SA_SHOW_REPLAY=false node ./scripts/syncVersions.js",
     "win": "npm run build && env $(cat .env | xargs) SYNC_OS_KEYS=win32,win64 SA_SHOW_REPLAY=false node ./scripts/syncVersions.js",
-    "linux": "npm run build && env $(cat .env | xargs) SYNC_OS_KEYS=linux SA_SHOW_REPLAY=false node ./scripts/syncVersions.js"
+    "linux": "npm run build && env $(cat .env | xargs) SYNC_OS_KEYS=linux SA_SHOW_REPLAY=false node ./scripts/syncVersions.js",
+    "collect-ua": "node ./scripts/collect-ua.mjs"
   },
   "dependencies": {
     "@actions/github": "^4.0.0",
+    "@nomagick/playwright-core": "^1.62.1",
     "axios": "^1.12.0",
     "tar": "^7.4.3",
     "uuid": "^8.3.2",

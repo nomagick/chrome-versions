@@ -1,0 +1,80 @@
+name: Collect Chrome UA data
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Number of most recent major versions to collect per platform, or "all"'
+        required: false
+        default: '32'
+        type: string
+      ref:
+        description: 'Branch, tag, or SHA of this repo to check out and run the collector from'
+        required: false
+        default: 'main'
+        type: string
+  # Lets other repos (e.g. reader-saas's CD pipeline) run this as a reusable
+  # workflow via `uses: nomagick/chrome-versions/.github/workflows/collect-chrome-ua.yml@main`,
+  # without needing a token — this is a github-native mechanism for public repos.
+  workflow_call:
+    inputs:
+      limit:
+        description: 'Number of most recent major versions to collect per platform, or "all"'
+        required: false
+        default: '32'
+        type: string
+      ref:
+        description: 'Branch, tag, or SHA of this repo to check out and run the collector from'
+        required: false
+        default: 'main'
+        type: string
+
+concurrency:
+  group: collect-chrome-ua-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  collect:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows_x64
+            os: windows-latest
+          - platform: linux_x64
+            os: ubuntu-latest
+          - platform: mac_arm64
+            os: macos-15
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ inputs.limit == 'all' && 360 || 120 }}
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: nomagick/chrome-versions
+          ref: ${{ inputs.ref || 'main' }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Yarn Install
+        run: yarn
+
+      - name: Collect Chrome UA data
+        shell: bash
+        run: node scripts/collect-ua.mjs
+        env:
+          CHROME_UA_PLATFORM: ${{ matrix.platform }}
+          CHROME_UA_LIMIT: ${{ inputs.limit }}
+          CHROME_UA_OUTPUT: chrome-ua-${{ matrix.platform }}.ndjson
+          GH_TOKEN: ${{ github.token }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chrome-ua-${{ matrix.platform }}
+          path: chrome-ua-${{ matrix.platform }}.ndjson
+          if-no-files-found: error
