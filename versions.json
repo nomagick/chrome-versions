@@ -5,7 +5,8 @@
   },
   "150.0.7871.181": {
     "linux": "http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_150.0.7871.181-1_amd64.deb",
-    "linux_rpm": "http://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-150.0.7871.181-1.x86_64.rpm"
+    "linux_rpm": "http://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-150.0.7871.181-1.x86_64.rpm",
+    "mac_arm64": "http://dl.google.com/release2/chrome/bddflspx2wvmx2jrkjhbteyxbe_150.0.7871.181/com-google-chrome_150.0.7871.181_all_opfua53h7pth5vqawmevuuaddi.crx3"
   },
   "150.0.7871.130": {
     "mac": "http://dl.google.com/release2/chrome/gwfue5zsnhypdje5qbfa65i7km_150.0.7871.130/com-google-chrome_150.0.7871.130_all_acqzyibnqtajylybizmdeal3gh7q.crx3"
