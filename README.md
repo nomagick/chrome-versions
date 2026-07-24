@@ -56,3 +56,12 @@ Chown: You may need to run `chown _apt {path to installer.deb}` to be able to ru
 This repository is checking for new Chrome versions from the Google update service daily at 10am. Those new versions are recorded in the versions.json file. NOTE: files are not downloaded until a new release or push is made against the repository.
 
 Anytime an update is pushed to this repository, Github Actions will update any missing release assets. If you wish to regenerate a version, simply delete the release (or asset) and it will be re-created.
+
+## Chrome UA & Fingerprint Data Collection
+
+The `collect-chrome-ua` Github Actions workflow (`scripts/collect-ua.mjs`) launches the last N major Chrome versions on each platform (windows_x64, linux_x64, mac_arm64) and records, per version, one ndjson line containing:
+
+- `userAgent` / `highEntropyValues` — from `navigator.userAgent` and `navigator.userAgentData.getHighEntropyValues()`.
+- `http2-1`, `http2-2`, `http3-1`, `http3-2` — `window.fpData` (TLS/HTTP fingerprint: JA3/JA4, cipher/extension order, HTTP/1-2-3 fingerprints, etc.) from [TrackMe](https://github.com/nomagick/TrackMe), loaded twice over normal HTTP/2 (each in a fresh browser context, to detect whether Chrome's TLS ClientHello randomizes across connections) and twice more with Chrome relaunched with `--origin-to-force-quic-on` to force the same page onto QUIC/HTTP3 instead.
+
+Fingerprint collection targets a hosted TrackMe instance (override with the `CHROME_FP_URL` env var). If it's unreachable when a run starts, fingerprint collection is skipped for that run and only UA data is collected — TrackMe reachability never fails the UA collection itself.

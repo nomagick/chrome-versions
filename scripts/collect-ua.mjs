@@ -13,10 +13,21 @@
 //      untouched by that repackaging (only auto-update/signing metadata is
 //      stripped), so UA/brand data is still genuine.
 //
+// Also collects window.fpData (TLS/HTTP fingerprint — see
+// https://github.com/nomagick/TrackMe) for each version, by loading a
+// hosted TrackMe instance 4 times per binary: http2-1/http2-2 are two
+// attempts over normal HTTP/2, each in a fresh browser context (fresh TLS
+// handshake) to detect whether Chrome's ClientHello randomizes across
+// connections; http3-1/http3-2 repeat this with Chrome relaunched with
+// --origin-to-force-quic-on to force the same origin onto QUIC/HTTP3. If
+// TrackMe isn't reachable, fingerprint collection is skipped for the whole
+// run rather than failing UA collection, which doesn't depend on it.
+//
 // Env vars:
 //   CHROME_UA_PLATFORM  - windows_x64 | linux_x64 | mac_arm64 (required)
 //   CHROME_UA_LIMIT     - number of most recent major versions to collect, or "all" (default: all)
 //   CHROME_UA_OUTPUT    - ndjson output path (default: chrome-ua-<platform>.ndjson)
+//   CHROME_FP_URL       - TrackMe URL to collect window.fpData from (default: https://fp.dev.naiver.org/)
 //   GH_TOKEN / GITHUB_TOKEN - optional, raises the GitHub API rate limit for the upstream-fallback lookup
 
 import { chromium } from '@nomagick/playwright-core';
@@ -26,6 +37,7 @@ import { Readable } from 'node:stream';
 import { createWriteStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import http from 'node:http';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,6 +45,10 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VERSIONS_JSON_PATH = path.join(__dirname, '..', 'versions.json');
 const UPSTREAM_REPO = 'ulixee/chrome-versions';
+
+const TRACKME_URL = process.env.CHROME_FP_URL || 'https://fp.dev.naiver.org/';
+const TRACKME_HOST = new URL(TRACKME_URL).hostname;
+const TRACKME_PORT = Number(new URL(TRACKME_URL).port || 443);
 
 const HIGH_ENTROPY_HINTS = [
     'architecture', 'model', 'bitness', 'platformVersion', 'formFactors', 'wow64', 'fullVersionList',
@@ -182,6 +198,73 @@ async function collectFromBinary(executablePath, extraArgs = []) {
     } finally {
         await browser.close();
     }
+}
+
+// The TrackMe server is started as a separate step before this script runs,
+// and its startup path differs per platform (Docker on linux/windows, a
+// native build on mac) — so rather than assuming a fixed startup delay,
+// poll until its TLS port actually accepts connections.
+async function waitForTrackMe(timeoutMs = 60000) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+        const reachable = await new Promise((resolve) => {
+            const socket = net.connect({ host: TRACKME_HOST, port: TRACKME_PORT }, () => {
+                socket.destroy();
+                resolve(true);
+            });
+            socket.on('error', () => resolve(false));
+            socket.setTimeout(2000, () => {
+                socket.destroy();
+                resolve(false);
+            });
+        });
+        if (reachable) {
+            return true;
+        }
+        await new Promise((r) => setTimeout(r, 2000));
+    }
+    return false;
+}
+
+// Loads the TrackMe fingerprinting page in `count` separate browser
+// contexts — a fresh context forces a fresh TLS handshake per attempt, which
+// is what lets this detect whether Chrome's ClientHello (JA3/JA4) randomizes
+// across connections rather than staying fixed for the process lifetime.
+async function collectFpVariant(executablePath, extraArgs, count) {
+    const browser = await chromium.launch({
+        executablePath,
+        headless: true,
+        args: ['--no-sandbox', '--disable-dev-shm-usage', ...extraArgs],
+    });
+    try {
+        const out = [];
+        for (let i = 0; i < count; i++) {
+            const context = await browser.newContext();
+            try {
+                const page = await context.newPage();
+                await page.goto(TRACKME_URL, { waitUntil: 'load' });
+                await page.waitForFunction(() => window.fpData != null, { timeout: 15000 });
+                out.push(await page.evaluate(() => window.fpData));
+            } finally {
+                await context.close();
+            }
+        }
+        return out;
+    } finally {
+        await browser.close();
+    }
+}
+
+async function collectFpData(executablePath) {
+    const [http2_1, http2_2] = await retry(() => collectFpVariant(executablePath, [], 2));
+    const [http3_1, http3_2] = await retry(() =>
+        collectFpVariant(executablePath, [`--origin-to-force-quic-on=${TRACKME_HOST}:${TRACKME_PORT}`], 2));
+    return {
+        'http2-1': http2_1,
+        'http2-2': http2_2,
+        'http3-1': http3_1,
+        'http3-2': http3_2,
+    };
 }
 
 async function listCandidates(osKey) {
@@ -383,7 +466,7 @@ async function acquireTier2(platformKey, osKey, version, workDir) {
     return executablePath;
 }
 
-async function processVersion(platformKey, osKey, outputPath, { major, version, liveUrl }) {
+async function processVersion(platformKey, osKey, outputPath, fpEnabled, { major, version, liveUrl }) {
     await withWorkDir(`chrome-ua-${platformKey}-${major}`, async (workDir) => {
         let executablePath;
         try {
@@ -405,6 +488,10 @@ async function processVersion(platformKey, osKey, outputPath, { major, version, 
 
         console.log(`[major ${major}] launching ${version}`);
         const result = await retry(() => collectFromBinary(executablePath, extraArgs));
+        if (fpEnabled) {
+            console.log(`[major ${major}] collecting fingerprint data from ${TRACKME_URL}`);
+            Object.assign(result, await retry(() => collectFpData(executablePath)));
+        }
         await fs.appendFile(outputPath, `${JSON.stringify(result)}\n`);
         console.log(`[major ${major}] collected: ${result.userAgent}`);
     });
@@ -426,10 +513,18 @@ async function main() {
     }
     console.log(`Collecting UA data for ${platformKey}: ${candidates.length} major version(s) -> ${outputPath}`);
 
+    console.log(`Checking TrackMe reachability at ${TRACKME_URL} ...`);
+    const fpEnabled = await waitForTrackMe();
+    if (fpEnabled) {
+        console.log('TrackMe is reachable: will also collect http2-1/2 + http3-1/2 fingerprint data per version.');
+    } else {
+        console.warn('TrackMe is not reachable: skipping fingerprint collection for this run.');
+    }
+
     let failures = 0;
     for (const entry of candidates) {
         try {
-            await processVersion(platformKey, osKey, outputPath, entry);
+            await processVersion(platformKey, osKey, outputPath, fpEnabled, entry);
         } catch (err) {
             failures++;
             console.error(`[major ${entry.major}] giving up: ${err.stack || err}`);

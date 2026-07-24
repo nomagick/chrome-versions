@@ -46,7 +46,9 @@ jobs:
           - platform: mac_arm64
             os: macos-15
     runs-on: ${{ matrix.os }}
-    timeout-minutes: ${{ inputs.limit == 'all' && 360 || 120 }}
+    # Each version now launches Chrome 5x (1 for UA + 4 for TrackMe fingerprint
+    # variants) instead of 1x, so allow more headroom than before.
+    timeout-minutes: ${{ inputs.limit == 'all' && 480 || 180 }}
     permissions:
       contents: read
 
@@ -63,6 +65,29 @@ jobs:
 
       - name: Yarn Install
         run: yarn
+
+      - name: Trust TrackMe's private CA
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ matrix.platform }}" in
+            linux_x64)
+              sudo cp certs/naiverlabs-ca-root.pem /usr/local/share/ca-certificates/naiverlabs-ca-root.crt
+              sudo update-ca-certificates
+              # Chrome on Linux trusts roots via its own NSS database, not the
+              # OpenSSL/system store update-ca-certificates just updated above
+              # (see chromium.googlesource.com docs/linux/cert_management.md).
+              sudo apt-get update && sudo apt-get install -y libnss3-tools
+              mkdir -p "$HOME/.pki/nssdb"
+              certutil -d sql:"$HOME/.pki/nssdb" -A -t "C,," -n "NaiverLabsCARoot" -i certs/naiverlabs-ca-root.pem
+              ;;
+            mac_arm64)
+              sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain certs/naiverlabs-ca-root.pem
+              ;;
+            windows_x64)
+              certutil -addstore -f "ROOT" certs/naiverlabs-ca-root.pem
+              ;;
+          esac
 
       - name: Collect Chrome UA data
         shell: bash
