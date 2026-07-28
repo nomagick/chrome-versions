@@ -256,7 +256,7 @@ async function collectFpVariant(executablePath, extraArgs, count) {
 }
 
 async function collectFpData(executablePath) {
-    const [http2_1, http2_2] = await retry(() => collectFpVariant(executablePath, [], 2));
+    const [http2_1, http2_2] = await retry(() => collectFpVariant(executablePath, ['--disable-quic'], 2));
     const [http3_1, http3_2] = await retry(() =>
         collectFpVariant(executablePath, [`--origin-to-force-quic-on=${TRACKME_HOST}:${TRACKME_PORT}`], 2));
     return {
