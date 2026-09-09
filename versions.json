@@ -1,7 +1,17 @@
 {
+  "153.0.8010.37": {
+    "win32": "http://dl.google.com/release2/chrome/f5s6pjadfdjpng76h23inulorq_153.0.8010.37/153.0.8010.37_chrome_installer_uncompressed.exe",
+    "win64": "http://dl.google.com/release2/chrome/gk2npvnuh46nt66cymep6yi5qq_153.0.8010.37/153.0.8010.37_chrome_installer_uncompressed.exe"
+  },
+  "153.0.8010.36": {
+    "linux": "http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_153.0.8010.36-1_amd64.deb",
+    "linux_rpm": "http://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-153.0.8010.36-1.x86_64.rpm"
+  },
   "152.0.7977.83": {
     "win32": "http://dl.google.com/release2/chrome/p72nwji4srsnnvpoxmy5szrxp4_152.0.7977.83/152.0.7977.83_chrome_installer_uncompressed.exe",
-    "win64": "http://dl.google.com/release2/chrome/acq2f3uzn7ecgyxc6aabdb56yyna_152.0.7977.83/152.0.7977.83_chrome_installer_uncompressed.exe"
+    "win64": "http://dl.google.com/release2/chrome/acq2f3uzn7ecgyxc6aabdb56yyna_152.0.7977.83/152.0.7977.83_chrome_installer_uncompressed.exe",
+    "mac_arm64": "http://dl.google.com/release2/chrome/kvzmx7djv3chuwn7cxgt2bywyi_152.0.7977.83/com-google-chrome_152.0.7977.83_all_fuxxo55jajyfaghlffbs2mevfa.crx3",
+    "mac": "http://dl.google.com/release2/chrome/kvzmx7djv3chuwn7cxgt2bywyi_152.0.7977.83/com-google-chrome_152.0.7977.83_all_fuxxo55jajyfaghlffbs2mevfa.crx3"
   },
   "152.0.7977.82": {
     "mac_arm64": "http://dl.google.com/release2/chrome/adbekqi5nxtjtcamk6vre5l2g5lq_152.0.7977.82/com-google-chrome_152.0.7977.82_all_l53okhugejiaylhdrbpb24afo4.crx3",
