@@ -6,7 +6,8 @@
   "153.0.8010.52": {
     "mac": "http://dl.google.com/release2/chrome/ad33ucr4j2vzrgv4atgmprq7wdra_153.0.8010.52/com-google-chrome_153.0.8010.52_all_aduxawyv42sx6kbmawd3fvrpk46q.crx3",
     "linux": "http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_153.0.8010.52-1_amd64.deb",
-    "linux_rpm": "http://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-153.0.8010.52-1.x86_64.rpm"
+    "linux_rpm": "http://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-153.0.8010.52-1.x86_64.rpm",
+    "mac_arm64": "http://dl.google.com/release2/chrome/ad33ucr4j2vzrgv4atgmprq7wdra_153.0.8010.52/com-google-chrome_153.0.8010.52_all_aduxawyv42sx6kbmawd3fvrpk46q.crx3"
   },
   "153.0.8010.50": {
     "mac_arm64": "http://dl.google.com/release2/chrome/acons6oelvqpx4lzqj4hoce4heqa_153.0.8010.50/com-google-chrome_153.0.8010.50_all_acl57wkutqnsbyxu3vag5pv6oaea.crx3",
