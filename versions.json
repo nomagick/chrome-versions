@@ -1,7 +1,9 @@
 {
   "155.0.8059.40": {
     "win32": "http://dl.google.com/release2/chrome/acebtw7pmgyxqsd5b653vx6idjoa_155.0.8059.40/155.0.8059.40_chrome_installer_uncompressed.exe",
-    "win64": "http://dl.google.com/release2/chrome/adeicfs34nqhzmry2l2sdlpo7l2q_155.0.8059.40/155.0.8059.40_chrome_installer_uncompressed.exe"
+    "win64": "http://dl.google.com/release2/chrome/adeicfs34nqhzmry2l2sdlpo7l2q_155.0.8059.40/155.0.8059.40_chrome_installer_uncompressed.exe",
+    "mac_arm64": "http://dl.google.com/release2/chrome/nicqurqnwliynlseobilltmwqy_155.0.8059.40/com-google-chrome_155.0.8059.40_all_ffgek6o7yqf4l2hvghaxzhsvgm.crx3",
+    "mac": "http://dl.google.com/release2/chrome/nicqurqnwliynlseobilltmwqy_155.0.8059.40/com-google-chrome_155.0.8059.40_all_ffgek6o7yqf4l2hvghaxzhsvgm.crx3"
   },
   "155.0.8059.39": {
     "linux": "http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_155.0.8059.39-1_amd64.deb",
