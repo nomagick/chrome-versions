@@ -9,6 +9,9 @@
     "linux": "http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_157.0.8103.78-1_amd64.deb",
     "linux_rpm": "http://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-157.0.8103.78-1.x86_64.rpm"
   },
+  "157.0.8103.52": {
+    "mac_arm64": "http://dl.google.com/release2/chrome/ac5zz6wnk4uzinn5ugnyapmlq7hq_157.0.8103.52/com-google-chrome_157.0.8103.52_all_ac6bkf6dfcjc7wtmec6cis5o2siq.crx3"
+  },
   "157.0.8103.51": {
     "win32": "http://dl.google.com/release2/chrome/joakxwrgjhhcrkplqg7sgj2g2u_157.0.8103.51/157.0.8103.51_chrome_installer_uncompressed.exe",
     "win64": "http://dl.google.com/release2/chrome/hhb3n3my4axozv7qmzlcqqaspi_157.0.8103.51/157.0.8103.51_chrome_installer_uncompressed.exe",
