@@ -1,7 +1,9 @@
 {
   "157.0.8103.79": {
     "win32": "http://dl.google.com/release2/chrome/acq6idvhxkcwr5otpuozd2yp6bia_157.0.8103.79/157.0.8103.79_chrome_installer_uncompressed.exe",
-    "win64": "http://dl.google.com/release2/chrome/acab3swyzqgszbsf6npoanqbvgvq_157.0.8103.79/157.0.8103.79_chrome_installer_uncompressed.exe"
+    "win64": "http://dl.google.com/release2/chrome/acab3swyzqgszbsf6npoanqbvgvq_157.0.8103.79/157.0.8103.79_chrome_installer_uncompressed.exe",
+    "mac_arm64": "http://dl.google.com/release2/chrome/acidgoyjjpe754qo3dswwx2rwt7q_157.0.8103.79/com-google-chrome_157.0.8103.79_all_aykwoy6lyfrcwituf27gxlu7fa.crx3",
+    "mac": "http://dl.google.com/release2/chrome/acidgoyjjpe754qo3dswwx2rwt7q_157.0.8103.79/com-google-chrome_157.0.8103.79_all_aykwoy6lyfrcwituf27gxlu7fa.crx3"
   },
   "157.0.8103.78": {
     "mac_arm64": "http://dl.google.com/release2/chrome/accv6u5joies6ri2fssi4xobdwvq_157.0.8103.78/com-google-chrome_157.0.8103.78_all_gbupug7d4vzhgog5drwpnzny7m.crx3",
